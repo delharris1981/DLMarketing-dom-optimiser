@@ -1,0 +1,16 @@
+# WordPress
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+*.log
+
+# System
+.DS_Store
+Thumbs.db
+
+# Dev
+.agent/
+node_modules/
+vendor/
+.vscode/
+.idea/
