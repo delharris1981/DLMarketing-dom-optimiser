@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2a] - 2026-01-31
+### Added
+- **Settings Page**: Added `Settings > DOM Optimiser` in WP Admin to control feature flags.
+- **Advanced Safety**: New `scan_scripts_for_ids` logic detects IDs used in inline JavaScript and protects them from removal.
+- **Refactor**: Split logic into `includes/class-settings.php` and `includes/class-optimiser.php`.
+
 ## [0.1a] - 2024-05-23
 ### Added
 - **Core Pruning Engine**: Filters frontend output buffer via `template_redirect`.
