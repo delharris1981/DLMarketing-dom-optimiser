@@ -51,6 +51,7 @@ class DLMarketing_DOM_Settings
         register_setting('dlmarketing_dom_group', 'dlmarketing_dom_enable_wrapper');
         register_setting('dlmarketing_dom_group', 'dlmarketing_dom_enable_ghost');
         register_setting('dlmarketing_dom_group', 'dlmarketing_dom_enable_comments');
+        register_setting('dlmarketing_dom_group', 'dlmarketing_dom_enable_aggressive');
 
         add_settings_section(
             'dlmarketing_dom_general_section',
@@ -84,6 +85,15 @@ class DLMarketing_DOM_Settings
             'dlmarketing-dom-optimiser',
             'dlmarketing_dom_general_section',
             ['label_for' => 'dlmarketing_dom_enable_comments', 'desc' => 'Strip <!-- comments --> from the source.']
+        );
+
+        add_settings_field(
+            'dlmarketing_dom_enable_aggressive',
+            'Enable Aggressive Mode (Deep Space)',
+            [$this, 'checkbox_callback'],
+            'dlmarketing-dom-optimiser',
+            'dlmarketing_dom_general_section',
+            ['label_for' => 'dlmarketing_dom_enable_aggressive', 'desc' => 'EXPERIMENTAL. Removes .elementor-inner and flattens nested containers. May affect complex layouts.']
         );
     }
 

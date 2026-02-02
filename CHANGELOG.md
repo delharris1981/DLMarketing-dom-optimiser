@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3a] - 2026-02-02
+### Added
+- **Aggressive Mode**: New "Deep Space" optimization tier (Experimental).
+- **Inner Wrapper Removal**: Optionally removes `.elementor-inner` divs.
+- **Deep Flattening**: Merges redundant nested containers (parent with single child).
+
 ## [0.2a] - 2026-01-31
 ### Added
 - **Settings Page**: Added `Settings > DOM Optimiser` in WP Admin to control feature flags.

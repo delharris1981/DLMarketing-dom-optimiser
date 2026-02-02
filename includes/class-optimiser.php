@@ -50,9 +50,10 @@ class DLMarketing_DOM_Optimiser_Core
         $enable_wrapper = get_option('dlmarketing_dom_enable_wrapper', 'on') === 'on';
         $enable_ghost = get_option('dlmarketing_dom_enable_ghost', 'on') === 'on';
         $enable_comments = get_option('dlmarketing_dom_enable_comments', 'on') === 'on';
+        $enable_aggressive = get_option('dlmarketing_dom_enable_aggressive', '') === 'on';
 
         // If everything disabled, return early
-        if (!$enable_wrapper && !$enable_ghost && !$enable_comments) {
+        if (!$enable_wrapper && !$enable_ghost && !$enable_comments && !$enable_aggressive) {
             return $buffer;
         }
 
@@ -78,6 +79,12 @@ class DLMarketing_DOM_Optimiser_Core
         // 3. Cleanup: Comments
         if ($enable_comments) {
             $this->remove_comments($xpath);
+        }
+
+        // 4. Deep Space: Aggressive
+        if ($enable_aggressive) {
+            $this->remove_elementor_inner($xpath);
+            $this->flatten_redundant_containers($xpath);
         }
 
         $output = $dom->saveHTML();
@@ -233,6 +240,83 @@ class DLMarketing_DOM_Optimiser_Core
             return;
         for ($i = $comments->length - 1; $i >= 0; $i--) {
             $comments->item($i)->parentNode->removeChild($comments->item($i));
+        }
+    }
+
+    /**
+     * [Aggressive] Remove .elementor-inner
+     */
+    private function remove_elementor_inner($xpath)
+    {
+        $query = "//*[contains(@class, 'elementor-inner')]";
+        $nodes = $xpath->query($query);
+        if (!$nodes)
+            return;
+
+        for ($i = $nodes->length - 1; $i >= 0; $i--) {
+            $node = $nodes->item($i);
+            // Safe to prune?
+            // For aggressive, we relax slightly, but still check IDs/Events
+            if ($this->is_safe_to_prune($node)) {
+                $this->unwrap_node($node);
+            }
+        }
+    }
+
+    /**
+     * [Aggressive] Flatten Redundant Containers
+     * Parent has 1 child, child is container.
+     */
+    private function flatten_redundant_containers($xpath)
+    {
+        // Find containers
+        $query = "//*[contains(@class, 'elementor-container') or contains(@class, 'elementor-row')]";
+        $nodes = $xpath->query($query);
+
+        if (!$nodes)
+            return;
+
+        for ($i = $nodes->length - 1; $i >= 0; $i--) {
+            $node = $nodes->item($i);
+            $parent = $node->parentNode;
+
+            if (!$parent || !$parent instanceof DOMElement)
+                continue;
+
+            // Check if parent is also a 'wrapper' or 'section' or generic div
+            // And if parent has ONLY this child (ignoring text/whitespace)
+
+            // 1. Parent Checks
+            if ($parent->hasAttribute('id'))
+                continue; // Safety
+            // Parent must look like a structural div
+            // (Strict check: must be elementor-section or similar wrapper? Or generic div?)
+            // Let's stick to Elementor structure: Parent is Section, Child is Container.
+            // Often we want to keeping Section > Container. 
+            // BUT: Parent .elementor-widget-wrap > Child .elementor-element-populated (Redundant)?
+
+            // Let's target: Parent div with ONE child which is also a div.
+            // And Parent has NO styling (Visual Zero).
+
+            // Re-use is_safe_to_prune for the PARENT
+            if (!$this->is_safe_to_prune($parent))
+                continue;
+
+            // Check children count (ignoring whitespace)
+            $child_count = 0;
+            foreach ($parent->childNodes as $child) {
+                if ($child instanceof DOMElement) {
+                    $child_count++;
+                } elseif ($child instanceof DOMText && trim($child->textContent) !== '') {
+                    $child_count++; // Has actual text
+                }
+            }
+
+            if ($child_count === 1) {
+                // Parent is safe, has only 1 child. Unwrap parent!
+                // NOTE: We unwrap the PARENT here, effectively lifting the child up.
+                $this->unwrap_node($parent);
+            }
         }
     }
 }

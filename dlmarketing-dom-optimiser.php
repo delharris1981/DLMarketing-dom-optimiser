@@ -3,7 +3,7 @@
  * Plugin Name: DLMarketing DOM Optimiser
  * Plugin URI:  https://dlmarketing.com/dom-optimiser
  * Description: High-performance DOM cleaner for Elementor (Legacy & V4). Removes bloat, ghost nodes, and redundant wrappers without breaking layout.
- * Version:     0.2a
+ * Version:     0.3a
  * Author:      DLMarketing
  * Author URI:  https://dlmarketing.com
  * Text Domain: dlmarketing-dom-optimiser
